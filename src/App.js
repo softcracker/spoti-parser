@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import axios from 'axios'
 import {Form, FormGroup, Col, Input, Button} from 'reactstrap'
 import './App.css'
-const api = "http://localhost:5000"
+const api = "http://localhost:8080"
 
 class App extends Component {
 
@@ -25,10 +25,10 @@ class App extends Component {
           const splitted = string.split(':')
       
           const obj = {
-              "first": splitted[0].trim(),
-              "second": splitted[1].trim()
+              "username": splitted[0].trim(),
+              "password": splitted[1].trim()
           }
-          dataList.push(JSON.stringify(obj))
+          dataList.push(obj)
       })
       return dataList
     } catch (e) {
