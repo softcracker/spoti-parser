@@ -59,7 +59,6 @@ class App extends Component {
           json.map(obj => {
           return axios.post(api, obj, {
             headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
                 "x-access-token": this.state.token
             }
           })
@@ -77,7 +76,6 @@ class App extends Component {
     try {
       const res = await axios.get(api + "number", {
         headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
             "x-access-token": token
         }
       })
