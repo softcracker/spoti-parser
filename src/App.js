@@ -2,7 +2,7 @@ import React, {Component, Fragment} from 'react'
 import axios from 'axios'
 import {Form, FormGroup, Col, Input, Button} from 'reactstrap'
 import './App.css'
-const api = "https://spoti-api.herokuapp.com/"
+const api = "http://localhost:8080/"
 
 class App extends Component {
 
@@ -11,21 +11,6 @@ class App extends Component {
     inputPlaceholder: "Accepted format:\n\nhallo : welt | DE \nhello : world | EN\nbonjour : monde | FR",
     amount: "?",
     amountPlaceholder: "Amount of data:",
-    email: "",
-    password: "",
-    emailPlaceholder: "email",
-    passwordPlaceholder: "password",
-    token: null,
-    authenticated: false,
-    loginMessage: "Login data:"
-  }
-
-  componentDidMount = async () => {
-    const localToken = localStorage.getItem("token")
-    const res = await this.getAmount(localToken)
-    if (res.data.status === 200) {
-      this.setState({token: localToken, authenticated: true})
-    }
   }
 
   parser = input => {
@@ -54,31 +39,19 @@ class App extends Component {
   sendData = async () => {
     const json = this.parser(this.state.input)
 
-    if (json !== null) {
       try {
           json.map(obj => {
-          return axios.post(api, obj, {
-            headers: {
-                "x-access-token": this.state.token
-            }
-          })
+          return axios.post(api, obj)
         })
         this.setState({inputPlaceholder: "Sending was successful.", input: ""})
       } catch (e) {
         this.setState({inputPlaceholder: "Error occured.", input: ""})
       }
-    } else {
-      this.setState({inputPlaceholder: "Invalid input.", input: ""})
-    }
   }
 
-  getAmount = async (token) => {
+  getAmount = async () => {
     try {
-      const res = await axios.get(api + "number", {
-        headers: {
-            "x-access-token": token
-        }
-      })
+      const res = await axios.get(api + "number")
       if (res.status === 200) {
         this.setState({
           amount: res.data.Number
@@ -94,64 +67,7 @@ class App extends Component {
     }
   }
 
-  login = async () => {
-    try {
-      const res = await axios.get(api + "auth", {
-        headers: {
-            "email": this.state.email,
-            "password": this.state.password
-        }
-      })
-      if (res.status === 200) {
-        this.setState({
-          token:  res.data.data.token, 
-          authenticated: true,
-          password: "",
-          email: ""
-        })
-        localStorage.setItem('token', res.data.data.token)
-      } else {
-        this.setState({password: "", email: "", loginMessage: "Invalid input."})
-        console.log(res)
-      }
-    } catch (e) {
-      this.setState({password: "", email: "", loginMessage: "Error occured."})
-      console.log(e)
-    }
-  }
-
   render() {
-
-    const loginForm = (
-        <Form  className="App-form">
-          <p>{this.state.loginMessage}</p>
-          <FormGroup row>
-            <Col xl={12} style={{marginBottom: 10}}>
-              <Input
-                style={{height: 40, width: "100%" }}
-                type="text" name="text"
-                value={this.state.email}
-                placeholder={this.state.emailPlaceholder}
-                id="exampleText"
-                onChange={(event) => this.setState({email: event.target.value})}
-              />
-            </Col>
-            <Col xl={12}>
-              <Input style={{height: 40, width: "100%" }}
-                type="text" name="text"
-                value={this.state.password}
-                placeholder={this.state.passwordPlaceholder}
-                id="exampleText" onChange={(event) => this.setState({password: event.target.value})}
-              />
-            </Col>
-          </FormGroup>
-          <FormGroup row>
-          <Col  xl={12}>
-            <Button onClick={this.login}>Login</Button>
-          </Col>
-        </FormGroup>
-      </Form>
-    )
 
     const inputForm = (
       <Fragment>
@@ -191,7 +107,7 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          {this.state.authenticated ? inputForm : loginForm}
+          {inputForm}
         </header>
       </div>
     ) 
