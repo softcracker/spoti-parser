@@ -100,6 +100,7 @@ class App extends Component {
             "email": this.state.email,
             "password": this.state.password
       })
+      console.log(res)
       if (res.status === 200) {
         this.setState({
           token:  res.data.data.token, 
@@ -125,7 +126,7 @@ class App extends Component {
             "authorization": "Bearer " + token
         }
       })
-      await this.getAmount(localStorage.getItem("token"))
+      await this.getAmount(this.state.token)
     } catch (err) {
       this.setState({amountPlaceholder: "Error occured."})
     }
@@ -177,10 +178,10 @@ class App extends Component {
           </FormGroup>
           <FormGroup row>
           <Col  xl={6}>
-            <Button onClick={() => this.getAmount(localStorage.getItem("token"))}>Get amount</Button>
+            <Button style={{marginBottom: "20px"}} onClick={() => this.getAmount(this.state.token)}>Get amount</Button>
           </Col>
           <Col  xl={6}>
-            <Button color="danger" onClick={() => this.deleteAll(localStorage.getItem("token"))}>Delete all</Button>
+            <Button color="danger" onClick={() => this.deleteAll(this.state.token)}>Delete all</Button>
           </Col>
         </FormGroup>
         </Form>
@@ -197,7 +198,7 @@ class App extends Component {
           </FormGroup>
           <FormGroup row>
           <Col  xl={12}>
-            <Button onClick={() => this.sendData(localStorage.getItem("token"))}>Submit</Button>
+            <Button onClick={() => this.sendData(this.state.token)}>Submit</Button>
           </Col>
         </FormGroup>
         </Form>
