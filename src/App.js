@@ -2,7 +2,8 @@ import React, {Component, Fragment} from 'react'
 import axios from 'axios'
 import {Form, FormGroup, Col, Input, Button} from 'reactstrap'
 import './App.css'
-const api = "https://spoti-api.herokuapp.com/"
+//const api = "https://spoti-api.herokuapp.com/"
+const api = "http://localhost:8080/"
 
 class App extends Component {
 
@@ -23,7 +24,7 @@ class App extends Component {
   componentDidMount = async () => {
     const localToken = localStorage.getItem("token")
     const res = await this.getAmount(localToken)
-    if (res.data.status === 200) {
+    if (res !== null && res.status === 200) {
       this.setState({token: localToken, authenticated: true})
     }
   }
@@ -51,7 +52,7 @@ class App extends Component {
   }
 
 
-  sendData = async () => {
+  sendData = async (token) => {
     const json = this.parser(this.state.input)
 
     if (json !== null) {
@@ -59,7 +60,7 @@ class App extends Component {
           json.map(obj => {
           return axios.post(api, obj, {
             headers: {
-                "x-access-token": this.state.token
+              "authorization": "Bearer " + token
             }
           })
         })
@@ -76,31 +77,28 @@ class App extends Component {
     try {
       const res = await axios.get(api + "number", {
         headers: {
-            "x-access-token": token
+            "authorization": "Bearer " + token
         }
       })
       if (res.status === 200) {
         this.setState({
-          amount: res.data.Number
+          amount: res.data.Number,
+          amountPlaceholder: "Amount of data:"
         })
       } else {
         this.setState({amountPlaceholder: "Error occured."})
       }
       return res
     } catch (e) {
-      this.setState({amountPlaceholder: "Error occured."})
-      console.log(e)
       return null
     }
   }
 
   login = async () => {
     try {
-      const res = await axios.get(api + "auth", {
-        headers: {
+      const res = await axios.post(api + "auth", {
             "email": this.state.email,
             "password": this.state.password
-        }
       })
       if (res.status === 200) {
         this.setState({
@@ -117,6 +115,19 @@ class App extends Component {
     } catch (e) {
       this.setState({password: "", email: "", loginMessage: "Error occured."})
       console.log(e)
+    }
+  }
+
+  deleteAll = async (token) => {
+    try {
+      await axios.delete(api, {
+        headers: {
+            "authorization": "Bearer " + token
+        }
+      })
+      await this.getAmount(localStorage.getItem("token"))
+    } catch (err) {
+      this.setState({amountPlaceholder: "Error occured."})
     }
   }
 
@@ -138,10 +149,10 @@ class App extends Component {
             </Col>
             <Col xl={12}>
               <Input style={{height: 40, width: "100%" }}
-                type="text" name="text"
+                type="password" name="password"
                 value={this.state.password}
                 placeholder={this.state.passwordPlaceholder}
-                id="exampleText" onChange={(event) => this.setState({password: event.target.value})}
+                id="examplePwd" onChange={(event) => this.setState({password: event.target.value})}
               />
             </Col>
           </FormGroup>
@@ -156,15 +167,20 @@ class App extends Component {
     const inputForm = (
       <Fragment>
         <Form  className="App-form">
-          <p>{this.state.amountPlaceholder}</p>
+            <Col xl={6}>
+              <p>{this.state.amountPlaceholder}</p>
+            </Col>
           <FormGroup row>
-            <Col xl={12}>
+            <Col xl={6}>
               <p>{this.state.amount}</p>
             </Col>
           </FormGroup>
           <FormGroup row>
-          <Col  xl={12}>
-            <Button onClick={() => this.getAmount(this.state.token)}>Get amount</Button>
+          <Col  xl={6}>
+            <Button onClick={() => this.getAmount(localStorage.getItem("token"))}>Get amount</Button>
+          </Col>
+          <Col  xl={6}>
+            <Button color="danger" onClick={() => this.deleteAll(localStorage.getItem("token"))}>Delete all</Button>
           </Col>
         </FormGroup>
         </Form>
@@ -181,7 +197,7 @@ class App extends Component {
           </FormGroup>
           <FormGroup row>
           <Col  xl={12}>
-            <Button onClick={this.sendData}>Submit</Button>
+            <Button onClick={() => this.sendData(localStorage.getItem("token"))}>Submit</Button>
           </Col>
         </FormGroup>
         </Form>
