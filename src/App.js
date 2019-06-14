@@ -2,8 +2,8 @@ import React, {Component, Fragment} from 'react'
 import axios from 'axios'
 import {Form, FormGroup, Col, Input, Button} from 'reactstrap'
 import './App.css'
-//const api = "https://spoti-api.herokuapp.com/"
-const api = "http://localhost:8080/"
+const api = "https://spoti-api.herokuapp.com/"
+//const api = "http://localhost:8080/"
 
 class App extends Component {
 
