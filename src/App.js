@@ -91,11 +91,10 @@ class App extends Component {
 
   login = async () => {
     try {
-      const res = await axios.post(api + this.state.cluster + "auth", {
+      await axios.post(api + this.state.cluster + "auth", {
         "email": this.state.email,
         "password": this.state.password
       })
-      console.log(res)
       if (res.status === 200) {
         this.setState({
           token: res.data.data.token,
@@ -116,7 +115,7 @@ class App extends Component {
 
   deleteAll = async (token) => {
     try {
-      const res = await axios.delete(api + this.state.cluster, {
+      await axios.delete(api + this.state.cluster, {
         headers: {
           "authorization": "Bearer " + token
         }
