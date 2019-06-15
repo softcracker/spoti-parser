@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react'
 import axios from 'axios'
 import { Form, FormGroup, Col, Input, Button } from 'reactstrap'
 import './App.css'
+const api = "https://spoti-api.herokuapp.com/"
 //const api = "http://localhost:8080/"
 
 class App extends Component {
@@ -10,7 +11,6 @@ class App extends Component {
     input: "",
     inputPlaceholder: "Accepted format:\n\nhallo : welt | DE \nhello : world | EN\nbonjour : monde | FR",
     amount: "?",
-    amountPlaceholder: "Amount of data:",
     email: "",
     password: "",
     token: null,
@@ -18,9 +18,6 @@ class App extends Component {
     loginMessage: "Login data:",
     cluster: "user/"
   }
-
-  api = "https://spoti-api.herokuapp.com/" + this.state.cluster
-
 
   componentDidMount = async () => {
     const localToken = localStorage.getItem("token")
@@ -59,7 +56,7 @@ class App extends Component {
     if (json !== null) {
       try {
         json.map(obj => {
-          return axios.post(this.api, obj, {
+          return axios.post(api + this.state.cluster, obj, {
             headers: {
               "authorization": "Bearer " + token
             }
@@ -76,18 +73,15 @@ class App extends Component {
 
   getAmount = async (token) => {
     try {
-      const res = await axios.get(this.api + "number", {
+      const res = await axios.get(api + this.state.cluster + "number", {
         headers: {
           "authorization": "Bearer " + token
         }
       })
       if (res.status === 200) {
         this.setState({
-          amount: res.data.Number,
-          amountPlaceholder: "Amount of data:"
+          amount: res.data.Number
         })
-      } else {
-        this.setState({ amountPlaceholder: "Error occured." })
       }
       return res
     } catch (e) {
@@ -97,7 +91,7 @@ class App extends Component {
 
   login = async () => {
     try {
-      const res = await axios.post(this.api + "auth", {
+      const res = await axios.post(api + this.state.cluster + "auth", {
         "email": this.state.email,
         "password": this.state.password
       })
@@ -122,15 +116,23 @@ class App extends Component {
 
   deleteAll = async (token) => {
     try {
-      await axios.delete(this.api, {
+      const res = await axios.delete(api + this.state.cluster, {
         headers: {
           "authorization": "Bearer " + token
         }
       })
       await this.getAmount(this.state.token)
     } catch (err) {
-      this.setState({ amountPlaceholder: "Error occured." })
+      console.log(err)
     }
+  }
+
+  selectDB1 = () => {
+    this.setState({ cluster: "user/" })
+  }
+
+  selectDB2 = () => {
+    this.setState({ cluster: "user2/" })
   }
 
   render() {
@@ -169,24 +171,32 @@ class App extends Component {
     const inputForm = (
       <Fragment>
         <Form className="App-form">
-          <Col xl={6}>
-            <p>{this.state.amountPlaceholder}</p>
-          </Col>
           <FormGroup row>
             <Col xl={6}>
-              <p>{this.state.amount}</p>
+              <p>Selected databse:</p>
+            </Col>
+            <Col xl={3}>
+              <Button outline color="secondary" onClick={this.selectDB1} active={this.state.cluster === "user/"}>DB 1</Button>
+            </Col>
+            <Col xl={3}>
+              <Button outline color="secondary" onClick={this.selectDB2} active={this.state.cluster === "user2/"} >DB 2</Button>
+            </Col>
+          </FormGroup>
+        </Form>
+        <Form className="App-form">
+          <FormGroup row>
+            <Col xl={6}>
+              <p>Amount of data: {this.state.amount}</p>
             </Col>
           </FormGroup>
           <FormGroup row>
             <Col xl={6}>
-              <Button style={{ marginBottom: "20px" }} onClick={() => this.getAmount(this.state.token)}>Get amount</Button>
+              <Button style={{ marginBottom: "20px" }} onClick={() => this.getAmount(this.state.token)}>Refresh</Button>
             </Col>
             <Col xl={6}>
               <Button color="danger" onClick={() => this.deleteAll(this.state.token)}>Delete all</Button>
             </Col>
           </FormGroup>
-        </Form>
-        <Form className="App-form">
           <p>New data:</p>
           <FormGroup row>
             <Col xl={12}>
@@ -203,7 +213,7 @@ class App extends Component {
             </Col>
           </FormGroup>
         </Form>
-      </Fragment>
+      </Fragment >
     )
 
     return (
