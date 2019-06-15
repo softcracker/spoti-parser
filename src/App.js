@@ -91,7 +91,7 @@ class App extends Component {
 
   login = async () => {
     try {
-      await axios.post(api + this.state.cluster + "auth", {
+      const res = await axios.post(api + this.state.cluster + "auth", {
         "email": this.state.email,
         "password": this.state.password
       })
