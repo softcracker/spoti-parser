@@ -127,13 +127,9 @@ class App extends Component {
     }
   }
 
-  selectDB1 = () => {
-    this.setState({ cluster: "user/" })
-  }
+  selectDB1 = () => this.setState({ cluster: "user/" })
 
-  selectDB2 = () => {
-    this.setState({ cluster: "user2/" })
-  }
+  selectDB2 = () => this.setState({ cluster: "user2/" })
 
   render() {
 
